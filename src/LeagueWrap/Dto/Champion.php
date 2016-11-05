@@ -1,11 +1,12 @@
 <?php
+
 namespace LeagueWrap\Dto;
 
-class Champion extends AbstractDto {
+class Champion extends AbstractDto
+{
+    use ImportStaticTrait;
 
-	use ImportStaticTrait;
-
-	protected $staticFields = [
-		'id' => 'champion',
-	];
+    protected $staticFields = [
+        'id' => 'champion',
+    ];
 }

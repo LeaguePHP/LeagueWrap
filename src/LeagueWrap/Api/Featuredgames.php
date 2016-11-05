@@ -1,67 +1,69 @@
 <?php
+
 namespace LeagueWrap\Api;
 
 use LeagueWrap\Dto\FeaturedGames as FeaturedGamesDto;
 
-class Featuredgames extends AbstractApi {
+class Featuredgames extends AbstractApi
+{
+    /**
+     * Valid versions for this api call.
+     *
+     * @var array
+     */
+    protected $versions = [
+        'v1.0',
+    ];
 
-	/**
-	 * Valid versions for this api call.
-	 *
-	 * @var array
-	 */
-	protected $versions = [
-		'v1.0',
-	];
+    /**
+     * A list of all permitted regions for the Champion api call.
+     *
+     * @param array
+     */
+    protected $permittedRegions = [
+        'br',
+        'eune',
+        'euw',
+        'lan',
+        'las',
+        'na',
+        'oce',
+        'ru',
+        'tr',
+        'kr',
+        'jp',
+    ];
 
-	/**
-	 * A list of all permitted regions for the Champion api call.
-	 *
-	 * @param array
-	 */
-	protected $permittedRegions = [
-		'br',
-		'eune',
-		'euw',
-		'lan',
-		'las',
-		'na',
-		'oce',
-		'ru',
-		'tr',
-		'kr',
-		'jp'
-	];
+    /**
+     * The amount of time we intend to remember the response for.
+     *
+     * @var int
+     */
+    protected $defaultRemember = 900;
 
-	/**
-	 * The amount of time we intend to remember the response for.
-	 *
-	 * @var int
-	 */
-	protected $defaultRemember = 900;
+    /**
+     * @return string domain used for the request
+     */
+    public function getDomain()
+    {
+        return $this->getRegion()->getFeaturedGamesDomain();
+    }
 
-	/**
-	 * @return String domain used for the request
-	 */
-	function getDomain()
-	{
-		return $this->getRegion()->getFeaturedGamesDomain();
-	}
+    /**
+     * Requests all featured games.
+     *
+     * @throws \Exception
+     * @throws \LeagueWrap\Exception\CacheNotFoundException
+     * @throws \LeagueWrap\Exception\RegionException
+     * @throws \LeagueWrap\Response\HttpClientError
+     * @throws \LeagueWrap\Response\HttpServerError
+     *
+     * @return \LeagueWrap\Dto\AbstractDto
+     */
+    public function featuredGames()
+    {
+        $response = $this->request('featured', [], false, false);
 
-	/**
-	 * Requests all featured games.
-	 *
-	 * @return \LeagueWrap\Dto\AbstractDto
-	 * @throws \Exception
-	 * @throws \LeagueWrap\Exception\CacheNotFoundException
-	 * @throws \LeagueWrap\Exception\RegionException
-	 * @throws \LeagueWrap\Response\HttpClientError
-	 * @throws \LeagueWrap\Response\HttpServerError
-	 */
-	public function featuredGames()
-	{
-		$response = $this->request('featured', [], false, false);
-
-		return $this->attachStaticDataToDto(new FeaturedGamesDto($response));
-	}
+        return $this->attachStaticDataToDto(new FeaturedGamesDto($response));
+    }
 }

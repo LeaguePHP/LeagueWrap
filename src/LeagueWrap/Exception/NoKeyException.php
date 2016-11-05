@@ -1,6 +1,7 @@
 <?php
+
 namespace LeagueWrap\Exception;
 
-final class NoKeyException extends \Exception {
-
+final class NoKeyException extends \Exception
+{
 }

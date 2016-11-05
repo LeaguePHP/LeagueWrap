@@ -1,12 +1,10 @@
 <?php
+
 namespace LeagueWrap\Dto;
 
 /**
- * Class ParticipantIdentity
- *
- * @package LeagueWrap\Dto
- * Identity of a participant of a match
+ * Class ParticipantIdentity.
  */
-class ParticipantIdentity extends AbstractDto {
-
+class ParticipantIdentity extends AbstractDto
+{
 }

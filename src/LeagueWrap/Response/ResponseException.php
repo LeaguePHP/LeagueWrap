@@ -1,11 +1,13 @@
 <?php
+
 namespace LeagueWrap\Response;
 
 use Exception;
 use LeagueWrap\Exception\NoResponseIncludedException;
 use LeagueWrap\Response;
 
-abstract class ResponseException extends Exception {
+abstract class ResponseException extends Exception
+{
     /**
      * Response that caused this exception.
      *
@@ -37,13 +39,14 @@ abstract class ResponseException extends Exception {
      */
     public function hasResponse()
     {
-        return !!$this->response;
+        return (bool) $this->response;
     }
 
     /**
      * Access the response.
      *
      * @throws NoResponseIncludedException
+     *
      * @return Response
      */
     public function getResponse()
@@ -54,7 +57,7 @@ abstract class ResponseException extends Exception {
                 'Use hasResponse() to check if this exception has response attached.'
             );
         }
-        
+
         return $this->response;
     }
 }

@@ -1,77 +1,79 @@
 <?php
+
 namespace LeagueWrap\Api;
 
 use LeagueWrap\Dto\CurrentGame as CurrentGameDto;
 
 /**
- * Spectator service endpoint
+ * Spectator service endpoint.
  */
-class Currentgame extends AbstractApi {
+class Currentgame extends AbstractApi
+{
+    /**
+     * Valid version for this api call.
+     *
+     * @var array
+     */
+    protected $versions = [
+        'v1.0',
+    ];
 
-	/**
-	 * Valid version for this api call.
-	 *
-	 * @var array
-	 */
-	protected $versions = [
-		'v1.0'
-	];
+    /**
+     * A list of all permitted regions for the league api call.
+     *
+     * @param array
+     */
+    protected $permittedRegions = [
+        'br',
+        'eune',
+        'euw',
+        'lan',
+        'las',
+        'na',
+        'oce',
+        'ru',
+        'tr',
+        'kr',
+        'jp',
+    ];
 
-	/**
-	 * A list of all permitted regions for the league api call.
-	 *
-	 * @param array
-	 */
-	protected $permittedRegions = [
-		'br',
-		'eune',
-		'euw',
-		'lan',
-		'las',
-		'na',
-		'oce',
-		'ru',
-		'tr',
-		'kr',
-		'jp'
-	];
+    /**
+     * The amount of time we intend to remember the response for.
+     *
+     * @var int
+     */
+    protected $defaultRemember = 900;
 
-	/**
-	 * The amount of time we intend to remember the response for.
-	 *
-	 * @var int
-	 */
-	protected $defaultRemember = 900;
+    /**
+     * @return string domain used for the request
+     */
+    public function getDomain()
+    {
+        return $this->getRegion()->getCurrentGameDomain();
+    }
 
-	/**
-	 * @return String domain used for the request
-	 */
-	function getDomain()
-	{
-		return $this->getRegion()->getCurrentGameDomain();
-	}
+    /**
+     * Gets the current game of summoner.
+     *
+     * @param \LeagueWrap\Api\Summoner|int $identity
+     *
+     * @throws \Exception
+     * @throws \LeagueWrap\Exception\CacheNotFoundException
+     * @throws \LeagueWrap\Exception\InvalidIdentityException
+     * @throws \LeagueWrap\Exception\RegionException
+     * @throws \LeagueWrap\Response\HttpClientError
+     * @throws \LeagueWrap\Response\HttpServerError
+     *
+     * @return \LeagueWrap\Dto\AbstractDto
+     */
+    public function currentGame($identity)
+    {
+        $summonerId = $this->extractId($identity);
+        $response = $this->request($summonerId, [], false, false);
+        $game = $this->attachStaticDataToDto(new CurrentGameDto($response));
 
-	/**
-	 * Gets the current game of summoner.
-	 *
-	 * @param \LeagueWrap\Api\Summoner|Int $identity
-	 * @return \LeagueWrap\Dto\AbstractDto
-	 * @throws \Exception
-	 * @throws \LeagueWrap\Exception\CacheNotFoundException
-	 * @throws \LeagueWrap\Exception\InvalidIdentityException
-	 * @throws \LeagueWrap\Exception\RegionException
-	 * @throws \LeagueWrap\Response\HttpClientError
-	 * @throws \LeagueWrap\Response\HttpServerError
-	 */
-	public function currentGame($identity)
-	{
-		$summonerId = $this->extractId($identity);
-		$response   = $this->request($summonerId, [], false, false);
-		$game       = $this->attachStaticDataToDto(new CurrentGameDto($response));
+        $this->attachResponse($identity, $game, 'game');
 
-		$this->attachResponse($identity, $game, 'game');
-
-		return $game;
-	}
-
+        return $game;
+    }
 }

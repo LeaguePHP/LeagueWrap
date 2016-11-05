@@ -2,22 +2,25 @@
 
 class ChampionMasteryListTest extends PHPUnit_Framework_TestCase
 {
-    public function testMasteriesNoResult() {
+    public function testMasteriesNoResult()
+    {
         $masteryList = new \LeagueWrap\Dto\ChampionMasteryList([]);
-        $this->assertEquals(0, sizeof($masteryList));
+        $this->assertEquals(0, count($masteryList));
     }
 
-    public function testChampionMastery() {
+    public function testChampionMastery()
+    {
         $this->markTestIncomplete();
         $content = json_decode(file_get_contents('tests/Json/championmastery.30447079.3.json'), true);
         $masteryList = new \LeagueWrap\Dto\ChampionMasteryList($content);
 
-        $this->assertTrue(3, sizeof($masteryList));
+        $this->assertTrue(3, count($masteryList));
         $this->assertTrue($masteryList[0] instanceof \LeagueWrap\Dto\ChampionMastery);
         $this->assertEquals($masteryList[0]->championId, 35);
     }
 
-    public function testGetChampionId() {
+    public function testGetChampionId()
+    {
         $this->markTestIncomplete();
         $content = json_decode(file_get_contents('tests/Json/championmastery.30447079.json'), true);
         $masteryList = new \LeagueWrap\Dto\ChampionMasteryList($content);

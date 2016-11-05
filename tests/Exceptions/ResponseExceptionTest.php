@@ -31,7 +31,7 @@ class ResponseExceptionTest extends PHPUnit_Framework_TestCase
         $this->client->shouldReceive('request')
             ->with('v1.2/champion', [
                 'freeToPlay' => 'false',
-                'api_key' => 'key',
+                'api_key'    => 'key',
             ])->once()
             ->andReturn($response);
     }
@@ -41,10 +41,10 @@ class ResponseExceptionTest extends PHPUnit_Framework_TestCase
         try {
             $this->simulateWithResponse(new Response('', 429, [
                 'Retry-After' => [
-                    123
+                    123,
                 ],
                 'X-Rate-Limit-Type' => [
-                    'user'
+                    'user',
                 ],
             ]));
 
@@ -61,7 +61,7 @@ class ResponseExceptionTest extends PHPUnit_Framework_TestCase
 
             $this->assertCount(2, $e->getResponse()->getHeaders());
             $this->assertEquals([
-                'Retry-After' => 123,
+                'Retry-After'       => 123,
                 'X-Rate-Limit-Type' => 'user',
             ], $e->getResponse()->getHeaders());
 

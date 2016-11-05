@@ -3,142 +3,141 @@
 use LeagueWrap\Api;
 use Mockery as m;
 
-class ApiStatsTest extends PHPUnit_Framework_TestCase {
+class ApiStatsTest extends PHPUnit_Framework_TestCase
+{
+    protected $client;
 
-	protected $client;
+    public function setUp()
+    {
+        $client = m::mock('LeagueWrap\Client');
+        $this->client = $client;
+    }
 
-	public function setUp()
-	{
-		$client       = m::mock('LeagueWrap\Client');
-		$this->client = $client;
-	}
+    public function tearDown()
+    {
+        m::close();
+    }
 
-	public function tearDown()
-	{
-		m::close();
-	}
+    public function testSummary()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->once();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/summary', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
 
-	public function testSummary()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->once();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/summary', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
+        $api = new Api('key', $this->client);
+        $stats = $api->stats()->summary(74602);
+        $this->assertTrue($stats instanceof LeagueWrap\Dto\PlayerStatsSummaryList);
+    }
 
-		$api   = new Api('key', $this->client);
-		$stats = $api->stats()->summary(74602);
-		$this->assertTrue($stats instanceof LeagueWrap\Dto\PlayerStatsSummaryList);
-	}
+    public function testSummaryArrayAccess()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->once();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/summary', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
 
-	public function testSummaryArrayAccess()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->once();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/summary', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
+        $api = new Api('key', $this->client);
+        $stats = $api->stats()->summary(74602);
+        $this->assertTrue($stats[0] instanceof LeagueWrap\Dto\PlayerStatsSummary);
+    }
 
-		$api   = new Api('key', $this->client);
-		$stats = $api->stats()->summary(74602);
-		$this->assertTrue($stats[0] instanceof LeagueWrap\Dto\PlayerStatsSummary);
-	}
+    public function testSummarySummoner()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->twice();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/summary', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
+        $this->client->shouldReceive('request')
+                     ->with('v1.4/summoner/by-name/bakasan', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/summoner.bakasan.json'));
 
-	public function testSummarySummoner()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->twice();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/summary', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
-		$this->client->shouldReceive('request')
-		             ->with('v1.4/summoner/by-name/bakasan', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/summoner.bakasan.json'));
+        $api = new Api('key', $this->client);
+        $bakasan = $api->summoner()->info('bakasan');
+        $api->stats()->summary($bakasan);
+        $this->assertTrue($bakasan->stats->playerStat(0) instanceof LeagueWrap\Dto\PlayerStatsSummary);
+    }
 
-		$api     = new Api('key', $this->client);
-		$bakasan = $api->summoner()->info('bakasan');
-		$api->stats()->summary($bakasan);
-		$this->assertTrue($bakasan->stats->playerStat(0) instanceof LeagueWrap\Dto\PlayerStatsSummary);
-	}
+    public function testSummonerySummonerSeason()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->twice();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/summary', [
+                        'api_key' => 'key',
+                        'season'  => 3,
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
+        $this->client->shouldReceive('request')
+                     ->with('v1.4/summoner/by-name/bakasan', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/summoner.bakasan.json'));
 
-	public function testSummonerySummonerSeason()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->twice();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/summary', [
-						'api_key' => 'key',
-						'season'  => 3,
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.summary.74602.season4.json'));
-		$this->client->shouldReceive('request')
-		             ->with('v1.4/summoner/by-name/bakasan', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/summoner.bakasan.json'));
+        $api = new Api('key', $this->client);
+        $bakasan = $api->summoner()->info('bakasan');
+        $stats = $api->stats();
+        $stats->setSeason(3);
+        $stats->summary($bakasan);
+        $this->assertTrue($bakasan->stats->playerStat(0) instanceof LeagueWrap\Dto\PlayerStatsSummary);
+    }
 
-		$api     = new Api('key', $this->client);
-		$bakasan = $api->summoner()->info('bakasan');
-		$stats   = $api->stats();
-		$stats->setSeason(3);
-		$stats->summary($bakasan);
-		$this->assertTrue($bakasan->stats->playerStat(0) instanceof LeagueWrap\Dto\PlayerStatsSummary);
-	}
+    public function testRanked()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->once();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/ranked', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.ranked.74602.season4.json'));
 
-	public function testRanked()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->once();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/ranked', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.ranked.74602.season4.json'));
+        $api = new Api('key', $this->client);
+        $stats = $api->stats()->ranked(74602);
+        $this->assertTrue($stats->champion(0) instanceof LeagueWrap\Dto\ChampionStats);
+    }
 
-		$api   = new Api('key', $this->client);
-		$stats = $api->stats()->ranked(74602);
-		$this->assertTrue($stats->champion(0) instanceof LeagueWrap\Dto\ChampionStats);
-	}
+    public function testRankedArrayAccess()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->once();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/ranked', [
+                        'api_key' => 'key',
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.ranked.74602.season4.json'));
 
-	public function testRankedArrayAccess()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->once();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/ranked', [
-						'api_key' => 'key',
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.ranked.74602.season4.json'));
+        $api = new Api('key', $this->client);
+        $stats = $api->stats()->ranked(74602);
+        $this->assertTrue($stats[0] instanceof LeagueWrap\Dto\ChampionStats);
+    }
 
-		$api   = new Api('key', $this->client);
-		$stats = $api->stats()->ranked(74602);
-		$this->assertTrue($stats[0] instanceof LeagueWrap\Dto\ChampionStats);
-	}
+    public function testRankedArrayAccessSeason()
+    {
+        $this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
+                     ->once();
+        $this->client->shouldReceive('request')
+                     ->with('v1.3/stats/by-summoner/74602/ranked', [
+                        'api_key' => 'key',
+                        'season'  => 3,
+                     ])->once()
+                     ->andReturn(file_get_contents('tests/Json/stats.ranked.74602.season4.json'));
 
-	public function testRankedArrayAccessSeason()
-	{
-		$this->client->shouldReceive('baseUrl')->with('https://na.api.pvp.net/api/lol/na/')
-		             ->once();
-		$this->client->shouldReceive('request')
-		             ->with('v1.3/stats/by-summoner/74602/ranked', [
-						'api_key' => 'key',
-						'season'  => 3,
-		             ])->once()
-		             ->andReturn(file_get_contents('tests/Json/stats.ranked.74602.season4.json'));
-
-		$api   = new Api('key', $this->client);
-		$stats = $api->stats();
-		$stats->setSeason(3);
-		$stats = $stats->ranked(74602);
-		$this->assertTrue($stats[0] instanceof LeagueWrap\Dto\ChampionStats);
-	}
+        $api = new Api('key', $this->client);
+        $stats = $api->stats();
+        $stats->setSeason(3);
+        $stats = $stats->ranked(74602);
+        $this->assertTrue($stats[0] instanceof LeagueWrap\Dto\ChampionStats);
+    }
 }
-

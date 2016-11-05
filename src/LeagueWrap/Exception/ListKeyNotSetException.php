@@ -1,6 +1,7 @@
 <?php
+
 namespace LeagueWrap\Exception;
 
-final class ListKeyNotSetException extends \Exception {
-
+final class ListKeyNotSetException extends \Exception
+{
 }

@@ -5,7 +5,6 @@ use Mockery as m;
 
 class ChampionMasteryTest extends PHPUnit_Framework_TestCase
 {
-
     protected $client;
 
     public function setUp()
@@ -26,7 +25,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
             ->once();
         $this->client->shouldReceive('request')
             ->with('player/30447079/champions', [
-                'api_key' => 'key'
+                'api_key' => 'key',
             ])->once()
             ->andReturn(file_get_contents('tests/Json/championmastery.30447079.json'));
 
@@ -43,7 +42,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
             ->with('https://euw.api.pvp.net/championmastery/location/EUW1/')->once();
         $this->client->shouldReceive('request')
             ->with('player/30447079/champion/1', [
-                'api_key' => 'key'
+                'api_key' => 'key',
             ])->once()
             ->andReturn(file_get_contents('tests/Json/championmastery.30447079.1.json'));
 
@@ -52,7 +51,6 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
 
         $championMastery = $api->championMastery()->champion(30447079, 1);
         $this->assertTrue($championMastery instanceof \LeagueWrap\Dto\ChampionMastery);
-
     }
 
     public function testTopChampions()
@@ -62,7 +60,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
         $this->client->shouldReceive('request')
             ->with('player/30447079/topchampions', [
                 'api_key' => 'key',
-                'count' => 3
+                'count'   => 3,
             ])->once()
             ->andReturn(file_get_contents('tests/Json/championmastery.30447079.topcount3.json'));
 
@@ -80,7 +78,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
         $this->client->shouldReceive('request')
             ->with('player/30447079/topchampions', [
                 'api_key' => 'key',
-                'count' => 1
+                'count'   => 1,
             ])->once()
             ->andReturn(file_get_contents('tests/Json/championmastery.30447079.topcount3.json'));
 
@@ -97,7 +95,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
             ->with('https://euw.api.pvp.net/championmastery/location/EUW1/')->once();
         $this->client->shouldReceive('request')
             ->with('player/30447079/score', [
-                'api_key' => 'key'
+                'api_key' => 'key',
             ])->once()
             ->andReturn(100);
 
@@ -107,7 +105,6 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
         $score = $api->championMastery()->score(30447079);
         $this->assertTrue($score == 100);
     }
-
 
     public function testScoreAttachResponse()
     {
@@ -119,7 +116,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
             ->once();
         $this->client->shouldReceive('request')
             ->with('player/74602/score', [
-                'api_key' => 'key'
+                'api_key' => 'key',
             ])->once()
             ->andReturn(999);
         $this->client->shouldReceive('request')
@@ -144,7 +141,7 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
             ->once();
         $this->client->shouldReceive('request')
             ->with('player/74602/champions', [
-                'api_key' => 'key'
+                'api_key' => 'key',
             ])->once()
             ->andReturn(file_get_contents('tests/Json/championmastery.30447079.topcount3.json'));
         $this->client->shouldReceive('request')
@@ -158,5 +155,4 @@ class ChampionMasteryTest extends PHPUnit_Framework_TestCase
         $api->championMastery()->champions($bakasan);
         $this->assertTrue($bakasan->championmastery instanceof \LeagueWrap\Dto\ChampionMasteryList);
     }
-
 }

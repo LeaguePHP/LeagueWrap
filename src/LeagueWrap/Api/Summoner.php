@@ -1,361 +1,334 @@
 <?php
+
 namespace LeagueWrap\Api;
 
 use LeagueWrap\Dto;
-use LeagueWrap\Dto\RunePage;
-use LeagueWrap\Dto\Rune;
-use LeagueWrap\Dto\MasteryPage;
 use LeagueWrap\Dto\Mastery;
+use LeagueWrap\Dto\MasteryPage;
+use LeagueWrap\Dto\Rune;
+use LeagueWrap\Dto\RunePage;
 use LeagueWrap\Exception\ListMaxException;
 
-class Summoner extends AbstractApi {
+class Summoner extends AbstractApi
+{
+    /**
+     * The summoners we have loaded.
+     *
+     * @var array
+     */
+    protected $summoners = [];
 
-	/**
-	 * The summoners we have loaded.
-	 *
-	 * @var array
-	 */
-	protected $summoners = [];
+    /**
+     * Valid version for this api call.
+     *
+     * @var array
+     */
+    protected $versions = [
+        'v1.4',
+    ];
 
-	/**
-	 * Valid version for this api call.
-	 *
-	 * @var array
-	 */
-	protected $versions = [
-		'v1.4',
-	];
+    /**
+     * A list of all permitted regions for the Champion api call.
+     *
+     * @param array
+     */
+    protected $permittedRegions = [
+        'br',
+        'eune',
+        'euw',
+        'lan',
+        'las',
+        'na',
+        'oce',
+        'ru',
+        'tr',
+        'kr',
+        'jp',
+    ];
 
-	/**
-	 * A list of all permitted regions for the Champion api call.
-	 *
-	 * @param array
-	 */
-	protected $permittedRegions = [
-		'br',
-		'eune',
-		'euw',
-		'lan',
-		'las',
-		'na',
-		'oce',
-		'ru',
-		'tr',
-		'kr',
-		'jp'
-	];
+    /**
+     * The amount of time we intend to remember the response for.
+     *
+     * @var int
+     */
+    protected $defaultRemember = 600;
 
-	/**
-	 * The amount of time we intend to remember the response for.
-	 *
-	 * @var int
-	 */
-	protected $defaultRemember = 600;
+    /**
+     * Attempt to get a summoner by key.
+     *
+     * @param string $key
+     *
+     * @return object|null
+     */
+    public function __get($key)
+    {
+        return $this->get($key);
+    }
 
-	/**
-	 * Attempt to get a summoner by key.
-	 *
-	 * @param string $key
-	 * @return object|null
-	 */
-	public function __get($key)
-	{
-		return $this->get($key);
-	}
+    /**
+     * @return string domain used for the request
+     */
+    public function getDomain()
+    {
+        return $this->getRegion()->getDefaultDomain();
+    }
 
-	/**
-	 * @return String domain used for the request
-	 */
-	function getDomain()
-	{
-		return $this->getRegion()->getDefaultDomain();
-	}
+    /**
+     * Attempt to get a summoner by key.
+     *
+     * @param string $key
+     *
+     * @return object|null
+     */
+    public function get($key)
+    {
+        $key = strtolower($key);
+        if (isset($this->summoners[$key])) {
+            return $this->summoners[$key];
+        }
+    }
 
-	/**
-	 * Attempt to get a summoner by key.
-	 *
-	 * @param string $key
-	 * @return object|null
-	 */
-	public function get($key)
-	{
-		$key = strtolower($key);
-		if (isset($this->summoners[$key]))
-		{
-			return $this->summoners[$key];
-		}
+    /**
+     * Gets the information about the user by the given identification. IDs must be of type integer, otherwise,
+     * numeric string values will be assumed to be names.
+     *
+     * @param mixed $identities
+     *
+     * @return Dto\Summoner
+     */
+    public function info($identities)
+    {
+        $ids = [];
+        $names = [];
+        if (is_array($identities)) {
+            foreach ($identities as $identity) {
+                if (gettype($identity) === 'integer') {
+                    // it's the id
+                    $ids[] = $identity;
+                } else {
+                    // the summoner name
+                    $names[] = $identity;
+                }
+            }
+        } else {
+            if (gettype($identities) === 'integer') {
+                // it's the id
+                $ids[] = $identities;
+            } else {
+                // the summoner name
+                $names[] = $identities;
+            }
+        }
 
-		return null;
-	}
+        if (count($ids) > 0) {
+            // it's the id
+            $ids = $this->infoByIds($ids);
+        }
+        if (count($names) > 0) {
+            // the summoner name
+            $names = $this->infoByNames($names);
+        }
 
-	/**
-	 * Gets the information about the user by the given identification. IDs must be of type integer, otherwise,
-	 * numeric string values will be assumed to be names.
-	 *
-	 * @param mixed $identities
-	 * @return Dto\Summoner
-	 */
-	public function info($identities)
-	{
-		$ids   = [];
-		$names = [];
-		if (is_array($identities))
-		{
-			foreach ($identities as $identity)
-			{
-				if (gettype($identity) === 'integer')
-				{
-					// it's the id
-					$ids[] = $identity;
-				}
-				else
-				{
-					// the summoner name
-					$names[] = $identity;
-				}
-			}
-		}
-		else
-		{
-			if (gettype($identities) === 'integer')
-			{
-				// it's the id
-				$ids[] = $identities;
-			}
-			else
-			{
-				// the summoner name
-				$names[] = $identities;
-			}
-		}
+        $summoners = $ids + $names;
 
-		if (count($ids) > 0)
-		{
-			// it's the id
-			$ids = $this->infoByIds($ids);
-		}
-		if (count($names) > 0)
-		{
-			// the summoner name
-			$names = $this->infoByNames($names);
-		}
+        if (count($summoners) == 1) {
+            return reset($summoners);
+        } else {
+            return $summoners;
+        }
+    }
 
-		$summoners = $ids + $names;
+    /**
+     * Attempts to get all information about this user. This method
+     * will make 3 requests!
+     *
+     * @param mixed $identities
+     *
+     * @return Dto\Summoner;
+     */
+    public function allInfo($identities)
+    {
+        $summoners = $this->info($identities);
+        $this->runePages($summoners);
+        $this->masteryPages($summoners);
 
-		if (count($summoners) == 1)
-		{
-			return reset($summoners);
-		}
-		else
-		{
-			return $summoners;
-		}
+        return $summoners;
+    }
 
-	}
+    /**
+     * Gets the name of each summoner from a list of ids.
+     *
+     * @param mixed $identities
+     *
+     * @return array
+     */
+    public function name($identities)
+    {
+        $ids = $this->extractIds($identities);
+        $ids = implode(',', $ids);
 
-	/**
-	 * Attempts to get all information about this user. This method
-	 * will make 3 requests!
-	 *
-	 * @param mixed $identities
-	 * @return Dto\Summoner;
-	 */
-	public function allInfo($identities)
-	{
-		$summoners = $this->info($identities);
-		$this->runePages($summoners);
-		$this->masteryPages($summoners);
+        $array = $this->request('summoner/'.$ids.'/name');
+        $names = [];
+        foreach ($array as $id => $name) {
+            $names[$id] = $name;
+        }
 
-		return $summoners;
-	}
+        return $names;
+    }
 
-	/**
-	 * Gets the name of each summoner from a list of ids.
-	 *
-	 * @param mixed $identities
-	 * @return array
-	 */
-	public function name($identities)
-	{
-		$ids = $this->extractIds($identities);
-		$ids = implode(',', $ids);
+    /**
+     * Gets all rune pages of the given user object or id.
+     *
+     * @param mixed $identities
+     *
+     * @return array
+     */
+    public function runePages($identities)
+    {
+        $ids = $this->extractIds($identities);
+        $ids = implode(',', $ids);
 
-		$array = $this->request('summoner/'.$ids.'/name');
-		$names = [];
-		foreach ($array as $id => $name)
-		{
-			$names[$id] = $name;
-		}
+        $array = $this->request('summoner/'.$ids.'/runes');
+        $summoners = [];
+        foreach ($array as $summonerId => $data) {
+            $runePages = [];
+            foreach ($data['pages'] as $info) {
+                if (!isset($info['slots'])) {
+                    // no runes in this page
+                    $info['slots'] = [];
+                }
 
-		return $names;
-	}
+                $slots = $info['slots'];
+                unset($info['slots']);
 
-	/**
-	 * Gets all rune pages of the given user object or id.
-	 *
-	 * @param mixed $identities
-	 * @return array
-	 */
-	public function runePages($identities)
-	{
-		$ids = $this->extractIds($identities);
-		$ids = implode(',', $ids);
+                $runePage = $this->attachStaticDataToDto(new RunePage($info));
 
-		$array     = $this->request('summoner/'.$ids.'/runes');
-		$summoners = [];
-		foreach ($array as $summonerId => $data)
-		{
-			$runePages = [];
-			foreach ($data['pages'] as $info)
-			{
-				if ( ! isset($info['slots']))
-				{
-					// no runes in this page
-					$info['slots'] = [];
-				}
+                // set runes
+                $runes = [];
+                foreach ($slots as $slot) {
+                    $id = $slot['runeSlotId'];
+                    $rune = $this->attachStaticDataToDto(new Rune($slot));
+                    $runes[$id] = $rune;
+                }
+                $runePage->runes = $runes;
+                $runePages[] = $runePage;
+            }
+            $summoners[$summonerId] = $runePages;
+        }
 
-				$slots = $info['slots'];
-				unset($info['slots']);
+        $this->attachResponses($identities, $summoners, 'runePages');
 
-				$runePage = $this->attachStaticDataToDto(new RunePage($info));
+        if (is_array($identities)) {
+            return $summoners;
+        } else {
+            return reset($summoners);
+        }
+    }
 
-				// set runes
-				$runes = [];
-				foreach ($slots as $slot)
-				{
-					$id         = $slot['runeSlotId'];
-					$rune       = $this->attachStaticDataToDto(new Rune($slot));
-					$runes[$id] = $rune;
-				}
-				$runePage->runes = $runes;
-				$runePages[]     = $runePage;
-			}
-			$summoners[$summonerId] = $runePages;
-		}
+    /**
+     * Gets all the mastery pages of the given user object or id.
+     *
+     * @param mixed $identities
+     *
+     * @return array
+     */
+    public function masteryPages($identities)
+    {
+        $ids = $this->extractIds($identities);
+        $ids = implode(',', $ids);
 
-		$this->attachResponses($identities, $summoners, 'runePages');
+        $array = $this->request('summoner/'.$ids.'/masteries');
+        $summoners = [];
+        foreach ($array as $summonerId => $data) {
+            $masteryPages = [];
+            foreach ($data['pages'] as $info) {
+                if (!isset($info['masteries'])) {
+                    // seting the talents to an empty array
+                    $info['masteries'] = [];
+                }
 
-		if (is_array($identities))
-		{
-			return $summoners;
-		}
-		else
-		{
-			return reset($summoners);
-		}
-	}
+                $masteriesInfo = $info['masteries'];
+                unset($info['masteries']);
+                $masteryPage = $this->attachStaticDataToDto(new MasteryPage($info));
+                // set masterys
+                $masteries = [];
+                foreach ($masteriesInfo as $mastery) {
+                    $id = $mastery['id'];
+                    $mastery = $this->attachStaticDataToDto(new Mastery($mastery));
+                    $masteries[$id] = $mastery;
+                }
+                $masteryPage->masteries = $masteries;
+                $masteryPages[] = $masteryPage;
+            }
+            $summoners[$summonerId] = $masteryPages;
+        }
 
-	/**
-	 * Gets all the mastery pages of the given user object or id.
-	 *
-	 * @param mixed $identities
-	 * @return array
-	 */
-	public function masteryPages($identities)
-	{
-		$ids = $this->extractIds($identities);
-		$ids = implode(',', $ids);
+        $this->attachResponses($identities, $summoners, 'masteryPages');
 
-		$array     = $this->request('summoner/'.$ids.'/masteries');
-		$summoners = [];
-		foreach ($array as $summonerId => $data)
-		{
-			$masteryPages = [];
-			foreach ($data['pages'] as $info)
-			{
-				if ( ! isset($info['masteries']))
-				{
-					// seting the talents to an empty array
-					$info['masteries'] = [];
-				}
+        if (is_array($identities)) {
+            return $summoners;
+        } else {
+            return reset($summoners);
+        }
+    }
 
-				$masteriesInfo = $info['masteries'];
-				unset($info['masteries']);
-				$masteryPage = $this->attachStaticDataToDto(new MasteryPage($info));
-				// set masterys
-				$masteries = [];
-				foreach ($masteriesInfo as $mastery)
-				{
-					$id             = $mastery['id'];
-					$mastery        = $this->attachStaticDataToDto(new Mastery($mastery));
-					$masteries[$id] = $mastery;
-				}
-				$masteryPage->masteries = $masteries;
-				$masteryPages[]         = $masteryPage;
-			}
-			$summoners[$summonerId] = $masteryPages;
-		}
+    /**
+     * Gets the information by the id of the summoner.
+     *
+     * @param array $ids
+     *
+     * @throws ListMaxException
+     *
+     * @return Dto\Summoner|Dto\Summoner[];
+     */
+    protected function infoByIds($ids)
+    {
+        if (count($ids) > 40) {
+            throw new ListMaxException('This request can only support a list of 40 elements, '.count($ids).' given.');
+        }
+        $idList = implode(',', $ids);
 
-		$this->attachResponses($identities, $summoners, 'masteryPages');
+        $array = $this->request('summoner/'.$idList);
+        $summoners = [];
+        foreach ($array as $info) {
+            $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
+            $name = $summoner->name;
+            $this->summoners[$name] = $summoner;
+            $summoners[$name] = $summoner;
+        }
 
-		if (is_array($identities))
-		{
-			return $summoners;
-		}
-		else
-		{
-			return reset($summoners);
-		}
-	}
+        return $summoners;
+    }
 
-	/**
-	 * Gets the information by the id of the summoner.
-	 *
-	 * @param array $ids
-	 * @return Dto\Summoner|Dto\Summoner[];
-	 * @throws ListMaxException
-	 */
-	protected function infoByIds($ids)
-	{
-		if (count($ids) > 40)
-		{
-			throw new ListMaxException('This request can only support a list of 40 elements, '.count($ids).' given.');
-		}
-		$idList = implode(',', $ids);
+    /**
+     * Gets the information by the name of the summoner.
+     *
+     * @param array $names
+     *
+     * @throws ListMaxException
+     *
+     * @return Dto\Summoner|Dto\Summoner[];
+     */
+    protected function infoByNames(array $names)
+    {
+        if (count($names) > 40) {
+            throw new ListMaxException('this request can only support a list of 40 elements, '.count($names).' given.');
+        }
+        $nameList = implode(',', $names);
 
-		$array     = $this->request('summoner/'.$idList);
-		$summoners = [];
-		foreach ($array as $info)
-		{
-			$summoner               = $this->attachStaticDataToDto(new Dto\Summoner($info));
-			$name                   = $summoner->name;
-			$this->summoners[$name] = $summoner;
-			$summoners[$name]       = $summoner;
-		}
+        // clean the name
+        $nameList = htmlspecialchars($nameList);
+        $array = $this->request('summoner/by-name/'.$nameList);
+        $summoners = [];
 
-		return $summoners;
-	}
+        if (!empty($array)) {
+            foreach ($array as $name => $info) {
+                $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
+                $this->summoners[$name] = $summoner;
+                $summoners[$name] = $summoner;
+            }
+        }
 
-	/**
-	 * Gets the information by the name of the summoner.
-	 *
-	 * @param array $names
-	 * @return Dto\Summoner|Dto\Summoner[];
-	 * @throws ListMaxException
-	 */
-	protected function infoByNames(array $names)
-	{
-		if (count($names) > 40)
-		{
-			throw new ListMaxException('this request can only support a list of 40 elements, '.count($names).' given.');
-		}
-		$nameList = implode(',', $names);
-
-		// clean the name
-		$nameList  = htmlspecialchars($nameList);
-		$array     = $this->request('summoner/by-name/'.$nameList);
-		$summoners = [];
-
-		if ( ! empty($array))
-		{
-			foreach ($array as $name => $info)
-			{
-				$summoner               = $this->attachStaticDataToDto(new Dto\Summoner($info));
-				$this->summoners[$name] = $summoner;
-				$summoners[$name]       = $summoner;
-			}
-		}
-
-		return $summoners;
-	}
+        return $summoners;
+    }
 }

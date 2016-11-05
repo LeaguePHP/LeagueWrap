@@ -1,48 +1,45 @@
 <?php
+
 namespace LeagueWrap\StaticProxy;
 
 use Api;
 use LeagueWrap\Api\League;
 
-class StaticLeague extends AbstractStaticProxy {
+class StaticLeague extends AbstractStaticProxy
+{
+    /**
+     * The League api class to be used for all requests.
+     *
+     * @var \LeagueWrap\Api\League
+     */
+    protected static $league = null;
 
-	/**
-	 * The League api class to be used for all requests.
-	 *
-	 * @var \LeagueWrap\Api\League
-	 */
-	protected static $league = null;
+    /**
+     * Magic method.
+     *
+     * @param $method
+     * @param $arguments
+     *
+     * @return mixed
+     */
+    public static function __callStatic($method, $arguments)
+    {
+        if (self::$league instanceof League) {
+            return call_user_func_array([self::$league, $method], $arguments);
+        } else {
+            self::$league = Api::league();
 
-	/**
-	 * Magic method.
-	 *
-	 * @param $method
-	 * @param $arguments
-	 * @return mixed
-	 */
-	public static function __callStatic($method, $arguments)
-	{
-		if (self::$league instanceof League)
-		{
-			return call_user_func_array([self::$league, $method], $arguments);
-		}
-		else
-		{
-			self::$league = Api::league();
+            return call_user_func_array([self::$league, $method], $arguments);
+        }
+    }
 
-			return call_user_func_array([self::$league, $method], $arguments);
-		}
-	}
-
-	/**
-	 * Set the league api to null.
-	 *
-	 * @return void
-	 */
-	public static function fresh()
-	{
-		self::$league = null;
-	}
-
+    /**
+     * Set the league api to null.
+     *
+     * @return void
+     */
+    public static function fresh()
+    {
+        self::$league = null;
+    }
 }
-

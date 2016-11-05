@@ -1,6 +1,7 @@
 <?php
+
 namespace LeagueWrap\Response;
 
-class Http400 extends HttpClientError {
-
+class Http400 extends HttpClientError
+{
 }

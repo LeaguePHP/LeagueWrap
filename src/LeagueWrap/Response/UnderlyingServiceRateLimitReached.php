@@ -1,8 +1,7 @@
 <?php
+
 namespace LeagueWrap\Response;
 
-class UnderlyingServiceRateLimitReached extends Http429 {
-
+class UnderlyingServiceRateLimitReached extends Http429
+{
 }
-
-

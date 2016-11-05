@@ -3,15 +3,12 @@
  * Created by PhpStorm.
  * User: danijoo
  * Date: 1/20/2016
- * Time: 12:45 PM
+ * Time: 12:45 PM.
  */
-
 namespace LeagueWrap\Dto;
-
 
 class ChampionMasteryList extends AbstractListDto
 {
-
     protected $listKey = '';
 
     /**
@@ -19,7 +16,7 @@ class ChampionMasteryList extends AbstractListDto
      */
     public function __construct(array $info)
     {
-        foreach($info as &$mastery) {
+        foreach ($info as &$mastery) {
             $mastery = new ChampionMastery($mastery);
         }
         parent::__construct($info);
@@ -29,15 +26,15 @@ class ChampionMasteryList extends AbstractListDto
      * Get a champion by its id.
      *
      * @param int $championId
+     *
      * @return ChampionMastery|null
      */
     public function getChampion($championId)
     {
-        foreach($this->info as $mastery) {
-            if($mastery->championId == $championId)
+        foreach ($this->info as $mastery) {
+            if ($mastery->championId == $championId) {
                 return $mastery;
+            }
         }
-        return null;
     }
-
 }

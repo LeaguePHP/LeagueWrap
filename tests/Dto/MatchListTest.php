@@ -1,7 +1,7 @@
 <?php
 
-class DtoMatchListTest extends PHPUnit_Framework_TestCase {
-
+class DtoMatchListTest extends PHPUnit_Framework_TestCase
+{
     public function testMatchNoResults()
     {
         $matchList = new LeagueWrap\Dto\MatchList([]);

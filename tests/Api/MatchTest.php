@@ -6,7 +6,6 @@ use Mockery as m;
 
 class ApiMatchTest extends PHPUnit_Framework_TestCase
 {
-
     protected $client;
 
     public function setUp()
@@ -50,13 +49,13 @@ class ApiMatchTest extends PHPUnit_Framework_TestCase
             ->andReturn(file_get_contents('tests/Json/matchhistory.match.1399898747.json'));
         $this->client->shouldReceive('request')
             ->with('v1.2/champion', [
-                'api_key' => 'key',
+                'api_key'  => 'key',
                 'dataById' => 'true',
             ])->once()
             ->andReturn(file_get_contents('tests/Json/Static/champion.json'));
         $this->client->shouldReceive('request')
             ->with('v1.2/summoner-spell', [
-                'api_key' => 'key',
+                'api_key'  => 'key',
                 'dataById' => 'true',
             ])->once()
             ->andReturn(file_get_contents('tests/Json/Static/summonerspell.json'));
@@ -108,8 +107,8 @@ class ApiMatchTest extends PHPUnit_Framework_TestCase
             ->once();
         $this->client->shouldReceive('request')
             ->with('v2.2/match/1399898747', [
-                'api_key' => 'key',
-                'includeTimeline' => true
+                'api_key'         => 'key',
+                'includeTimeline' => true,
             ])->once()
             ->andReturn(file_get_contents('tests/Json/matchhistory.match.1399898747.timeline.json'));
 
@@ -124,8 +123,8 @@ class ApiMatchTest extends PHPUnit_Framework_TestCase
             ->once();
         $this->client->shouldReceive('request')
             ->with('v2.2/match/1399898747', [
-                'api_key' => 'key',
-                'includeTimeline' => true
+                'api_key'         => 'key',
+                'includeTimeline' => true,
             ])->once()
             ->andReturn(file_get_contents('tests/Json/matchhistory.match.1399898747.timeline.json'));
 
@@ -140,8 +139,8 @@ class ApiMatchTest extends PHPUnit_Framework_TestCase
             ->once();
         $this->client->shouldReceive('request')
             ->with('v2.2/match/1399898747', [
-                'api_key' => 'key',
-                'includeTimeline' => true
+                'api_key'         => 'key',
+                'includeTimeline' => true,
             ])->once()
             ->andReturn(file_get_contents('tests/Json/matchhistory.match.1399898747.timeline.json'));
 
@@ -169,8 +168,8 @@ class ApiMatchTest extends PHPUnit_Framework_TestCase
             ])->once()
             ->andReturn(new LeagueWrap\Response('', 429));
 
-        $api       = new Api('key', $this->client);
-        $champion  = $api->champion();
+        $api = new Api('key', $this->client);
+        $champion = $api->champion();
         $champions = $champion->all();
     }
 
@@ -188,12 +187,12 @@ class ApiMatchTest extends PHPUnit_Framework_TestCase
                 'api_key'    => 'key',
             ])->once()
             ->andReturn(new LeagueWrap\Response('', 429, [
-                'Retry-After' => 123,
-                'X-Rate-Limit-Type' => 'user'
+                'Retry-After'       => 123,
+                'X-Rate-Limit-Type' => 'user',
             ]));
 
-        $api       = new Api('key', $this->client);
-        $champion  = $api->champion();
+        $api = new Api('key', $this->client);
+        $champion = $api->champion();
         $champions = $champion->all();
     }
-} 
+}

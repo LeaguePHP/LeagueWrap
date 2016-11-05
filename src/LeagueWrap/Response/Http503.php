@@ -1,7 +1,7 @@
 <?php
+
 namespace LeagueWrap\Response;
 
-class Http503 extends HttpServerError {
-
+class Http503 extends HttpServerError
+{
 }
-

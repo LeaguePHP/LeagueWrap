@@ -1,6 +1,7 @@
 <?php
+
 namespace LeagueWrap\Exception;
 
-final class InvalidIdentityException extends \Exception {
-
+final class InvalidIdentityException extends \Exception
+{
 }

@@ -1,17 +1,15 @@
 <?php
+
 namespace LeagueWrap\Dto;
 
 /**
- * Class Ban
- *
- * @package LeagueWrap\Dto
- * Represents a single ban of a match
+ * Class Ban.
  */
-class Ban extends AbstractDto {
+class Ban extends AbstractDto
+{
+    use ImportStaticTrait;
 
-	use ImportStaticTrait;
-
-	protected $staticFields = [
-		'championId' => 'champion',
-	];
+    protected $staticFields = [
+        'championId' => 'champion',
+    ];
 }

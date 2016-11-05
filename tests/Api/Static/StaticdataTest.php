@@ -1,16 +1,15 @@
 <?php
 
-use LeagueWrap\Api;
 use \Mockery as m;
+use LeagueWrap\Api;
 
-class StaticdataTest extends PHPUnit_Framework_TestCase{
-
+class StaticdataTest extends PHPUnit_Framework_TestCase
+{
     protected $client;
 
     public function setUp()
     {
         $this->client = m::mock('LeagueWrap\Client');
-
     }
 
     public function tearDown()
@@ -19,9 +18,11 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
     }
 
     /**
-     * Helper function to access a protected method
+     * Helper function to access a protected method.
+     *
      * @param $class string classname
      * @param $name string method name
+     *
      * @return ReflectionMethod
      */
     private function getMethod($class, $name)
@@ -29,6 +30,7 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $rClass = new ReflectionClass($class);
         $method = $rClass->getMethod($name);
         $method->setAccessible(true);
+
         return $method;
     }
 
@@ -45,8 +47,6 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $this->assertFalse($method->invoke($staticData, 'all'));
     }
 
-
-
     public function testSetUpParamsAll()
     {
         $method = $this->getMethod('LeagueWrap\Api\Staticdata', 'setUpParams');
@@ -54,7 +54,7 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $params = $method->invoke($staticData, '',  null, null, 'champData', 'champData');
+        $params = $method->invoke($staticData, '', null, null, 'champData', 'champData');
         $expected = [
         ];
         $this->assertEquals($expected, $params);
@@ -67,9 +67,9 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $params = $method->invoke($staticData, '',  null, 'all', 'listData', 'itemData');
+        $params = $method->invoke($staticData, '', null, 'all', 'listData', 'itemData');
         $expected = [
-            'listData' => 'all'
+            'listData' => 'all',
         ];
         $this->assertEquals($expected, $params);
     }
@@ -81,9 +81,9 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $data = ["string1", "string2"];
+        $data = ['string1', 'string2'];
         $params = $method->invoke($staticData, '', null, $data, 'listData', 'itemData');
-        $this->assertEquals(array('listData' => 'string1,string2'), $params);
+        $this->assertEquals(['listData' => 'string1,string2'], $params);
     }
 
     public function testSetUpParamsDataArraySingleItem()
@@ -93,9 +93,9 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $data = ["string1", "string2"];
+        $data = ['string1', 'string2'];
         $params = $method->invoke($staticData, '', 1, $data, 'listData', 'itemData');
-        $this->assertEquals(array('itemData' => 'string1,string2'), $params);
+        $this->assertEquals(['itemData' => 'string1,string2'], $params);
     }
 
     public function testSetUpParamsId()
@@ -105,7 +105,7 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $params = $method->invoke($staticData, '',  1, null, 'listData', 'itemData');
+        $params = $method->invoke($staticData, '', 1, null, 'listData', 'itemData');
         $expected = [];
         $this->assertEquals($expected, $params);
     }
@@ -117,9 +117,9 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $params = $method->invoke($staticData, '',  1, 'all', 'listData', 'itemData');
+        $params = $method->invoke($staticData, '', 1, 'all', 'listData', 'itemData');
         $expected = [
-            'itemData' => 'all'
+            'itemData' => 'all',
         ];
         $this->assertEquals($expected, $params);
     }
@@ -131,10 +131,10 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $api = new Api('key', $this->client);
         $staticData = $api->staticData();
 
-        $params = $method->invoke($staticData, 'champion',  null, 'all', 'listData', 'itemData');
+        $params = $method->invoke($staticData, 'champion', null, 'all', 'listData', 'itemData');
         $expected = [
             'dataById' => 'true',
-            'listData' => 'all'
+            'listData' => 'all',
         ];
         $this->assertEquals($expected, $params);
     }
@@ -148,13 +148,11 @@ class StaticdataTest extends PHPUnit_Framework_TestCase{
         $staticData->setLocale('fr_FR');
 
 
-        $params = $method->invoke($staticData, 'champion',  266, 'tags', 'champData', 'champData');
+        $params = $method->invoke($staticData, 'champion', 266, 'tags', 'champData', 'champData');
         $expected = [
-            'locale'=> 'fr_FR',
-            'champData' => 'tags'
+            'locale'    => 'fr_FR',
+            'champData' => 'tags',
         ];
         $this->assertEquals($expected, $params);
     }
-
-
-} 
+}

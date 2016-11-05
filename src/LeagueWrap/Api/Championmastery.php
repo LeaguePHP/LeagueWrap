@@ -2,12 +2,10 @@
 
 namespace LeagueWrap\Api;
 
-
 use LeagueWrap\Dto\ChampionMasteryList;
 
 class Championmastery extends AbstractApi
 {
-
     /**
      * Valid version for this api call.
      *
@@ -41,49 +39,54 @@ class Championmastery extends AbstractApi
     protected $defaultRemember = 900;
 
     /**
-     * @return String domain used for the request
+     * @return string domain used for the request
      */
-    function getDomain()
+    public function getDomain()
     {
         return $this->getRegion()->getChampionMasteryDomain();
     }
 
-    public function champions($identity) {
+    public function champions($identity)
+    {
         $summonerId = $this->extractId($identity);
         $response = $this->request('player/'.$summonerId.'/champions', [], false, false);
 
         $championMasteryList = new ChampionMasteryList($response);
-        $this->attachResponse($identity, $championMasteryList, "championmastery");
+        $this->attachResponse($identity, $championMasteryList, 'championmastery');
+
         return $championMasteryList;
     }
 
-    public function champion($identity, $championId) {
+    public function champion($identity, $championId)
+    {
         $summonerId = $this->extractId($identity);
         $response = $this->request('player/'.$summonerId.'/champion/'.$championId, [], false, false);
 
         $mastery = new \LeagueWrap\Dto\ChampionMastery($response);
-        $this->attachResponse($identity, $mastery, "championmastery");
+        $this->attachResponse($identity, $mastery, 'championmastery');
+
         return $mastery;
     }
 
-    public function topChampions($identity, $count = 3) {
+    public function topChampions($identity, $count = 3)
+    {
         $summonerId = $this->extractId($identity);
         $response = $this->request('player/'.$summonerId.'/topchampions', ['count' => $count], false, false);
 
         $mastery = new \LeagueWrap\Dto\ChampionMasteryList($response);
-        $this->attachResponse($identity, $mastery, "championmastery");
+        $this->attachResponse($identity, $mastery, 'championmastery');
+
         return $mastery;
     }
 
-    public function score($identity) {
+    public function score($identity)
+    {
         $summonerId = $this->extractId($identity);
         $response = $this->request('player/'.$summonerId.'/score', [], false, false);
 
         $score = intval($response);
-        $this->attachResponse($identity, $score, "score");
+        $this->attachResponse($identity, $score, 'score');
+
         return intval($response);
     }
-
-
-
 }

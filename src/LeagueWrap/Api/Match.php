@@ -1,71 +1,70 @@
 <?php
+
 namespace LeagueWrap\Api;
 
 use LeagueWrap\Dto\Match as MatchDto;
 
-class Match extends AbstractApi {
+class Match extends AbstractApi
+{
+    /**
+     * Valid version for this api call.
+     *
+     * @var array
+     */
+    protected $versions = [
+        'v2.2',
+    ];
 
-	/**
-	 * Valid version for this api call.
-	 *
-	 * @var array
-	 */
-	protected $versions = [
-		'v2.2',
-	];
+    /**
+     * A list of all permitted regions for the Champion api call.
+     *
+     * @param array
+     */
+    protected $permittedRegions = [
+        'br',
+        'eune',
+        'euw',
+        'lan',
+        'las',
+        'na',
+        'oce',
+        'kr',
+        'ru',
+        'tr',
+        'jp',
+    ];
 
-	/**
-	 * A list of all permitted regions for the Champion api call.
-	 *
-	 * @param array
-	 */
-	protected $permittedRegions = [
-		'br',
-		'eune',
-		'euw',
-		'lan',
-		'las',
-		'na',
-		'oce',
-		'kr',
-		'ru',
-		'tr',
-		'jp'
-	];
+    /**
+     * The amount of time we intend to remember the response for.
+     *
+     * @var int
+     */
+    protected $defaultRemember = 1800;
 
-	/**
-	 * The amount of time we intend to remember the response for.
-	 *
-	 * @var int
-	 */
-	protected $defaultRemember = 1800;
+    /**
+     * @return string domain used for the request
+     */
+    public function getDomain()
+    {
+        return $this->getRegion()->getDefaultDomain();
+    }
 
-	/**
-	 * @return String domain used for the request
-	 */
-	function getDomain()
-	{
-		return $this->getRegion()->getDefaultDomain();
-	}
+    /**
+     * Get the match by match id.
+     *
+     * @param int  $matchId
+     * @param bool $includeTimeline
+     *
+     * @return Match
+     */
+    public function match($matchId, $includeTimeline = false)
+    {
+        if ($includeTimeline) {
+            $response = $this->request('match/'.$matchId, ['includeTimeline' => ($includeTimeline) ? 'true' : 'false']);
+        } else {
+            $response = $this->request('match/'.$matchId);
+        }
 
-	/**
-	 * Get the match by match id.
-	 *
-	 * @param int $matchId
-	 * @param bool $includeTimeline
-	 * @return Match
-	 */
-	public function match($matchId, $includeTimeline = false)
-	{
-		if ($includeTimeline)
-		{
-			$response = $this->request('match/'.$matchId, ['includeTimeline' => ($includeTimeline) ? 'true' : 'false']);
-		}
-		else
-		{
-			$response = $this->request('match/'.$matchId);
-		}
-
-		return $this->attachStaticDataToDto(new MatchDto($response));
-	}
-} 
+        return $this->attachStaticDataToDto(new MatchDto($response));
+    }
+}
