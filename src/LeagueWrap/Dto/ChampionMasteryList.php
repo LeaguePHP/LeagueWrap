@@ -5,6 +5,7 @@
  * Date: 1/20/2016
  * Time: 12:45 PM.
  */
+
 namespace LeagueWrap\Dto;
 
 class ChampionMasteryList extends AbstractListDto

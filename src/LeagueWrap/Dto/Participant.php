@@ -32,7 +32,6 @@ class Participant extends AbstractDto
             $info['timeline'] = new ParticipantTimeline($info['timeline']);
         }
 
-
         parent::__construct($info);
     }
 }

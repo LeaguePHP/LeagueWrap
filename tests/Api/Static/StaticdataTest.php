@@ -147,7 +147,6 @@ class StaticdataTest extends PHPUnit_Framework_TestCase
         $staticData = $api->staticData();
         $staticData->setLocale('fr_FR');
 
-
         $params = $method->invoke($staticData, 'champion', 266, 'tags', 'champData', 'champData');
         $expected = [
             'locale'    => 'fr_FR',

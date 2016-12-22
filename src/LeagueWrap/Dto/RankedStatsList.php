@@ -4,7 +4,7 @@ namespace LeagueWrap\Dto;
 
 /**
  * List made for multiple RankedStats when calling ranked stats endpoint multiple times
- * (for example for each summoner in current game)
+ * (for example for each summoner in current game).
  *
  * NOTE: This is not one of Riot's Dtos, it's just a wrapper around multiple RankedStats
  */
@@ -36,7 +36,7 @@ class RankedStatsList extends AbstractDto
     public function playerStat($playerStatId)
     {
         if (!isset($this->info[$playerStatId])) {
-            return null;
+            return;
         }
 
         return $this->info[$playerStatId];

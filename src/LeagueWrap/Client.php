@@ -4,7 +4,6 @@ namespace LeagueWrap;
 
 use GuzzleHttp\Client as Guzzle;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\Stream;
 use LeagueWrap\Exception\BaseUrlException;
 use Psr\Http\Message\ResponseInterface;
@@ -112,16 +111,17 @@ class Client implements ClientInterface, AsyncClientInterface
         }
 
         return $this->guzzle->getAsync($path.'?'.http_build_query($params), [
-            'timeout' => $this->timeout,
+            'timeout'     => $this->timeout,
             'http_errors' => false,
-        ])->then(function(ResponseInterface $response) {
+        ])->then(function (ResponseInterface $response) {
             $wrapResponse = new Response(
                 (string) $response->getBody(),
                 $response->getStatusCode(),
                 $response->getHeaders()
             );
+
             return $wrapResponse;
-        }, function(RequestException $e) {
+        }, function (RequestException $e) {
             return $e;
         });
     }

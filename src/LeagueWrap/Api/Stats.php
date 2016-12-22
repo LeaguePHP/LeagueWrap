@@ -117,6 +117,7 @@ class Stats extends AbstractApi
         if (is_array($identity) && $this->client instanceof AsyncClientInterface) {
             $promises = array_map(function ($id) use ($params) {
                 $summonerId = $this->extractId($id);
+
                 return $this->requestAsync('stats/by-summoner/'.$summonerId.'/ranked', $params);
             }, $identity);
 

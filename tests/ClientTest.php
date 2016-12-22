@@ -52,7 +52,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         // Add 2 responses to the mock queue
         $mockedHandler = new GuzzleHttp\Handler\MockHandler([
             $response,
-            $response
+            $response,
         ]);
         $handlerStack = GuzzleHttp\HandlerStack::create($mockedHandler);
 
@@ -73,7 +73,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $dummyService = new TestSomeAsyncService();
         $client->requestAsync('')
             ->then([$dummyService, 'onSuccess'])
-            ->otherwise(function (\Exception $r)  {
+            ->otherwise(function (\Exception $r) {
                 $this->fail($r);
             })
             ->wait();
