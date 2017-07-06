@@ -22,16 +22,18 @@ use LeagueWrap\Api;
 
 $api      = new Api($myKey);            // Load up the API
 $summoner = $api->summoner();           // Load up the summoner request object.
-$bakasan  = $summoner->info('bakasan'); // Get the information about this user.
+$bakasan = $summoner->info('bakasan'); // Get the information about this user.
 
 $bakasan = $summoner->info(74602);      // same thing as above, just to show that an id will work
+$bakasan = $summoner->infoByAccountId(101444); // same thing as above, just to show that an accountId will work
 
 echo $bakasan->summonerLevel;           // 30
 echo $bakasan->id;                      // 74602
 echo $bakasan->name;                    // "bakasan"
+echo $bakasan->accountId;               // 101444
 echo $bakasan->profileIconId;           // 24
 echo $bakasan->revisionDate;            // 1387391523000
-echo $bakasan->revisionDateStr;         // "12/18/2013 06:32 PM UTC"
+echo $bakasan->revisionDateStr;         // "12/18/2013 06:32 PM UTC"*/
 ```
 
 The above gets the basic information about the user 'bakasan'. The above example illustrates the general idea of how things work. You load up the API with your given key, this API object can be used as many times as possible and is encouraged to only have one instance of it. From the API you can select which API to query (in this case the summoner API). Finally, you use a method, dependant of the API you query, to perform a request on that API.

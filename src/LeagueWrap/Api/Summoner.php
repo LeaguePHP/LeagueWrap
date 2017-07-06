@@ -7,7 +7,6 @@ use LeagueWrap\Dto\Mastery;
 use LeagueWrap\Dto\MasteryPage;
 use LeagueWrap\Dto\Rune;
 use LeagueWrap\Dto\RunePage;
-use LeagueWrap\Exception\ListMaxException;
 
 class Summoner extends AbstractApi
 {
@@ -25,7 +24,6 @@ class Summoner extends AbstractApi
      */
     protected $versions = [
         'v3',
-        'v1.4',
     ];
 
     /**
@@ -71,17 +69,15 @@ class Summoner extends AbstractApi
      */
     public function getDomain()
     {
-        if ($this->getVersion() === 'v3') {
-            return $this->getRegion()->getStandardizedDomain().'summoner/';
-        }
-
-        return $this->getRegion()->getDefaultDomain();
+        return $this->getRegion()->getStandardizedDomain().'summoner/';
     }
 
+
     /**
-     * Attempt to get a summoner by key.
+     * Gets the information about the user by the given identification. Requests for SummonerId odr Summoner name.
+     * IDs must be of type integer, otherwise, numeric string values will be assumed to be summoner-names.
      *
-     * @param string $key
+     * In V3 batch calls are removed!
      *
      * @return object|null
      */
@@ -97,88 +93,29 @@ class Summoner extends AbstractApi
      * Gets the information about the user by the given identification. IDs must be of type integer, otherwise,
      * numeric string values will be assumed to be names.
      *
-     * @param mixed $identities
+     * @param int|string $identities
      *
      * @return Dto\Summoner
      */
-    public function info($identities)
+    public function info($identity)
     {
-        $ids = [];
-        $names = [];
-        if (is_array($identities)) {
-            foreach ($identities as $identity) {
-                if (gettype($identity) === 'integer') {
-                    // it's the id
-                    $ids[] = $identity;
-                } else {
-                    // the summoner name
-                    $names[] = $identity;
-                }
-            }
-        } else {
-            if (gettype($identities) === 'integer') {
-                // it's the id
-                $ids[] = $identities;
-            } else {
-                // the summoner name
-                $names[] = $identities;
-            }
+        $isNumericIdentity = !is_string($identity) && is_numeric($identity) && ctype_digit((string)$identity);
+        $isStringIdentity = is_string($identity);
+        if (!$isNumericIdentity && !$isStringIdentity) {
+            throw new \InvalidArgumentException(
+                "the given identity must be a numeric (summoner_id) or a string (summoner_name) ".gettype($identity)." given"
+            );
         }
 
-        if (count($ids) > 0) {
+        if ($isNumericIdentity) {
             // it's the id
-            $ids = $this->infoByIds($ids);
-        }
-        if (count($names) > 0) {
-            // the summoner name
-            $names = $this->infoByNames($names);
-        }
-
-        $summoners = $ids + $names;
-
-        if (count($summoners) == 1) {
-            return reset($summoners);
+            $summoner = $this->infoBySummonerId($identity);
         } else {
-            return $summoners;
-        }
-    }
-
-    /**
-     * Attempts to get all information about this user. This method
-     * will make 3 requests!
-     *
-     * @param mixed $identities
-     *
-     * @return Dto\Summoner;
-     */
-    public function allInfo($identities)
-    {
-        $summoners = $this->info($identities);
-        $this->runePages($summoners);
-        $this->masteryPages($summoners);
-
-        return $summoners;
-    }
-
-    /**
-     * Gets the name of each summoner from a list of ids.
-     *
-     * @param mixed $identities
-     *
-     * @return array
-     */
-    public function name($identities)
-    {
-        $ids = $this->extractIds($identities);
-        $ids = implode(',', $ids);
-
-        $array = $this->request('summoner/'.$ids.'/name');
-        $names = [];
-        foreach ($array as $id => $name) {
-            $names[$id] = $name;
+            // the summoner name
+            $summoner = $this->infoBySummonerName($identity);
         }
 
-        return $names;
+        return $summoner;
     }
 
     /**
@@ -278,62 +215,57 @@ class Summoner extends AbstractApi
     }
 
     /**
-     * Gets the information by the id of the summoner.
+     * Gets the information by the summonerid of the summoner.
      *
-     * @param array $ids
+     * @param integer $summonerId
      *
-     * @throws ListMaxException
-     *
-     * @return Dto\Summoner|Dto\Summoner[];
+     * @return Dto\Summoner;
      */
-    protected function infoByIds($ids)
+    protected function infoBySummonerId($summonerId)
     {
-        if (count($ids) > 40) {
-            throw new ListMaxException('This request can only support a list of 40 elements, '.count($ids).' given.');
-        }
-        $idList = implode(',', $ids);
+        $info = $this->request('summoners/'.$summonerId);
+        $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
+        $this->summoners[$summoner->name] = $summoner;
+        return $summoner;
+    }
 
-        $array = $this->request('summoner/'.$idList);
-        $summoners = [];
-        foreach ($array as $info) {
-            $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
-            $name = $summoner->name;
-            $this->summoners[$name] = $summoner;
-            $summoners[$name] = $summoner;
+    /**
+     * Gets the information by the accountid of the summoner.
+     *
+     * @param $accountId
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return Dto\Summoner;
+     */
+    public function infoByAccountId($accountId)
+    {
+        if (!((is_string($accountId) || is_numeric($accountId)) && ctype_digit((string)$accountId))) {
+            throw new \InvalidArgumentException(
+                "the given accountId must be an integer (summoner_id) ".gettype($accountId)." given"
+            );
         }
 
-        return $summoners;
+        $info = $this->request('summoners/by-account/'.$accountId);
+        $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
+        $this->summoners[$summoner->name] = $summoner;
+        return $summoner;
     }
 
     /**
      * Gets the information by the name of the summoner.
      *
-     * @param array $names
+     * @param string $names
      *
-     * @throws ListMaxException
-     *
-     * @return Dto\Summoner|Dto\Summoner[];
+     * @return Dto\Summoner;
      */
-    protected function infoByNames(array $names)
+    protected function infoBySummonerName($summonerName)
     {
-        if (count($names) > 40) {
-            throw new ListMaxException('this request can only support a list of 40 elements, '.count($names).' given.');
-        }
-        $nameList = implode(',', $names);
-
         // clean the name
-        $nameList = htmlspecialchars($nameList);
-        $array = $this->request('summoner/by-name/'.$nameList);
-        $summoners = [];
-
-        if (!empty($array)) {
-            foreach ($array as $name => $info) {
-                $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
-                $this->summoners[$name] = $summoner;
-                $summoners[$name] = $summoner;
-            }
-        }
-
-        return $summoners;
+        $summonerName = htmlspecialchars($summonerName);
+        $info = $this->request('summoners/by-name/'.$summonerName);
+        $summoner = $this->attachStaticDataToDto(new Dto\Summoner($info));
+        $this->summoners[$summoner->name] = $summoner;
+        return $summoner;
     }
 }
